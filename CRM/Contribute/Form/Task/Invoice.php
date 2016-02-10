@@ -420,6 +420,13 @@ class CRM_Contribute_Form_Task_Invoice extends CRM_Contribute_Form_Task {
         $countryDomain = '';
       }
 
+      $isPaid = false;
+      if($contribution->trxn_id != null) {
+        $r = CRM_Core_DAO::singleValueQuery('SELECT count(1) FROM civicrm_entity_financial_trxn eft LEFT JOIN civicrm_financial_trxn ft ON ft.id = eft.financial_trxn_id WHERE eft.entity_table=\'civicrm_contribution\' AND entity_id=%1 AND status_id=1', array(1 => array($contribution->id, 'String')));
+
+        $isPaid = $r > 0;
+      }
+
       // parameters to be assign for template
       $tplParams = array(
         'title' => $title,
@@ -459,6 +466,7 @@ class CRM_Contribute_Form_Task_Invoice extends CRM_Contribute_Form_Task {
         'domain_country' => $countryDomain,
         'domain_email' => CRM_Utils_Array::value('email', CRM_Utils_Array::value('1', $locationDefaults['email'])),
         'domain_phone' => CRM_Utils_Array::value('phone', CRM_Utils_Array::value('1', $locationDefaults['phone'])),
+        'is_paid' => $isPaid
       );
 
       if (isset($creditNoteId)) {
